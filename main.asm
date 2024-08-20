@@ -1,5 +1,6 @@
 INCLUDE "hardware.inc"
 
+; DEF VAR_NAME EQU $value
 DEF BRICK_LEFT EQU $05
 DEF BRICK_RIGHT EQU $06
 DEF BLANK_TILE EQU $08
@@ -224,7 +225,6 @@ BounceOnBottom:
     ld [wBallMomentumY], a
 	;call PlayBounceSound
 BounceDone:
-
     ; First, check if the ball is low enough to bounce off the paddle.
     ld a, [_OAMRAM]
     ld b, a
@@ -448,7 +448,6 @@ PlayBreakSound:
 	ld [rNR44], a
 	ret
 
-
 IncScore:
     ;ld bc, $9852
     ld hl, $9851
@@ -644,4 +643,3 @@ BallEnd:
 
 BallTileData: INCBIN "res/img/image.2bpp"
 BallTileDataEnd:
-
