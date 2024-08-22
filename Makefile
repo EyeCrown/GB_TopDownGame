@@ -1,13 +1,13 @@
-GAME=breackout
+GAME=game
 
 ADDRWINDOWS=/mnt/c/Users/theoc/Coding/Perso/GameBoyExperimentation
 
 COLORPALETTE=#071821, #306850, #86c06c, #e0f8cf
 
-all: $(GAME) clean windows
+all: $(GAME) clean 
 
 $(GAME): $(GAME).gb
-	rgbfix -v -p 0xFF $(GAME).gb -t breackout
+	rgbfix -v -p 0xFF $(GAME).gb -t game
 
 $(GAME).gb: main.o
 	rgblink -o $(GAME).gb main.o 
