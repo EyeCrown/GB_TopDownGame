@@ -84,6 +84,11 @@ ClearOam:
     ld a, 0
     ld [wFrameCounter], a
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                    ;
+;       MAIN                         ;
+;                                    ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Main:
     ld a, [rLY]
     cp 144
@@ -97,6 +102,53 @@ WaitVBlank2:
     ; Check the current keys every frame and move left and right.
     call UpdateKeys
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                    ;
+;       INPUTS                       ;
+;                                    ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+CheckLeft:
+    ld a, [wCurKeys]
+    and a, PADF_LEFT
+    jp z, CheckRight
+Left:
+    ld h, HIGH(rSCX)
+    ld l,  LOW(rSCX)
+    dec [hl]
+    jp Main
+
+    ; Then check the right button
+CheckRight:
+    ld a, [wCurKeys]
+    and a, PADF_RIGHT
+    jp z, CheckUp 
+Right:
+    ld h, HIGH(rSCX)
+    ld l,  LOW(rSCX)
+    inc [hl]
+    jp Main
+CheckUp:
+    ld a, [wCurKeys]
+    and a, PADF_UP
+    jp z, CheckDown
+Up:
+    ld h, HIGH(rSCY)
+    ld l,  LOW(rSCY)
+    dec [hl]
+    jp Main
+
+    ; Then check the right button
+CheckDown:
+    ld a, [wCurKeys]
+    and a, PADF_DOWN
+    jp z, Main 
+Down:
+    ld h, HIGH(rSCY)
+    ld l,  LOW(rSCY)
+    inc [hl]
+    jp Main
+
+    ; End of Main loop
     jp Main
 
 
