@@ -141,12 +141,34 @@ Up:
 CheckDown:
     ld a, [wCurKeys]
     and a, PADF_DOWN
-    jp z, Main 
+    jp z, CheckAButton 
 Down:
     ld h, HIGH(rSCY)
     ld l,  LOW(rSCY)
     inc [hl]
     jp Main
+
+CheckAButton:
+    ld a, [wCurKeys]
+    and a, PADF_A
+    jp z, CheckBButton 
+AButton:
+    ld a, [rBGP]
+    rlca 
+    rlca     
+    ld [rBGP], a
+    jp Main
+CheckBButton:
+    ld a, [wCurKeys]
+    and a, PADF_B
+    jp z, Main 
+BButton:
+    ld a, [rBGP]
+    rrca 
+    rrca     
+    ld [rBGP], a
+    jp Main
+
 
     ; End of Main loop
     jp Main
