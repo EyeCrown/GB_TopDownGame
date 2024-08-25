@@ -28,6 +28,12 @@ WaitVBlank:
     ld a, 0
     ld [rLCDC], a
     
+    ; Copy the player tile data
+    ld de, PlayerTiles
+    ld hl, $8000
+    ld bc, PlayerTilesEnd - PlayerTiles
+    call Memcopy
+
     ; Copy the tile data
     ld de, Tiles
     ld hl, $9000
@@ -99,8 +105,18 @@ WaitVBlank2:
     jp c, WaitVBlank2
 
 
+    ld a, [wFrameCounter]
+    inc a
+    cp a, 60    ; 60 FPS
+    jp nz, Continue
+    ld a, 0
+
+Continue:
+    ld [wFrameCounter], a
     ; Check the current keys every frame and move left and right.
     call UpdateKeys
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                    ;
@@ -115,8 +131,6 @@ Left:
     ld h, HIGH(rSCX)
     ld l,  LOW(rSCX)
     dec [hl]
-    jp Main
-
     ; Then check the right button
 CheckRight:
     ld a, [wCurKeys]
@@ -126,7 +140,6 @@ Right:
     ld h, HIGH(rSCX)
     ld l,  LOW(rSCX)
     inc [hl]
-    jp Main
 CheckUp:
     ld a, [wCurKeys]
     and a, PADF_UP
@@ -135,9 +148,7 @@ Up:
     ld h, HIGH(rSCY)
     ld l,  LOW(rSCY)
     dec [hl]
-    jp Main
-
-    ; Then check the right button
+    ; Then check the button
 CheckDown:
     ld a, [wCurKeys]
     and a, PADF_DOWN
@@ -146,18 +157,22 @@ Down:
     ld h, HIGH(rSCY)
     ld l,  LOW(rSCY)
     inc [hl]
-    jp Main
 
 CheckAButton:
     ld a, [wCurKeys]
     and a, PADF_A
     jp z, CheckBButton 
 AButton:
+    ld a, [wFrameCounter]
+    ; cp a, 0
+    xor a, %0000_0011
+    ; jp nz, EndOfMain
+    jp z, EndOfMain
     ld a, [rBGP]
     rlca 
     rlca     
     ld [rBGP], a
-    jp Main
+
 CheckBButton:
     ld a, [wCurKeys]
     and a, PADF_B
@@ -167,10 +182,9 @@ BButton:
     rrca 
     rrca     
     ld [rBGP], a
-    jp Main
-
-
+    
     ; End of Main loop
+EndOfMain:
     jp Main
 
 
@@ -233,8 +247,8 @@ UpdateKeys:
     ret
 
 
-
-
+PlayerTiles: INCBIN "res/img/2bppFiles/TestPlayer.2bpp"
+PlayerTilesEnd:
 
 
 Tiles:

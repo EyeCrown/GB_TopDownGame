@@ -2,6 +2,9 @@ GAME=game
 
 ADDRWINDOWS=/mnt/c/Users/theoc/Coding/Perso/GameBoyExperimentation
 
+IMPORTFOLDER=res/img/PngFiles
+EXPORTFOLDER=res/img/2bppFiles
+
 COLORPALETTE=#071821, #306850, #86c06c, #e0f8cf
 
 all: $(GAME) clean 
@@ -26,3 +29,6 @@ mrproprer:
 
 images: 
 	rgbgfx -c '#071821, #306850, #86c06c, #e0f8cf' -A -o res/img/heart_empty.2bpp res/img/heart_empty.png 
+
+image:
+	rgbgfx -m -u -a $(EXPORTFOLDER)/TestPlayer.attrmap -o $(EXPORTFOLDER)/TestPlayer.2bpp $(IMPORTFOLDER)/TestPlayer.png -t $(EXPORTFOLDER)/TestPlayer.tilemap
