@@ -77,6 +77,41 @@ ClearOam:
     dec b
     jp nz, ClearOam
 
+
+    ld hl, _OAMRAM
+    ; Sprite 0
+    ld a, 16    ; Y = 16
+    ld [hli], a
+    ld a, 8
+    ld [hli], a ; X = 8
+    ld a, 0     ; Tile index = 0
+    ld [hli], a
+    ld [hli], a ; Attributes = %0000_0000
+    ; Sprite 1
+    ld a, 16    ; Y = 16
+    ld [hli], a
+    ld a, 8 + 8
+    ld [hli], a ; X = 8
+    ld a, 1     ; Tile index = 0
+    ld [hli], a
+    ld [hli], a ; Attributes = %0000_0000
+    ; Sprite 2
+    ld a, 8 + 16    ; Y = 16
+    ld [hli], a
+    ld a, 8
+    ld [hli], a ; X = 8
+    ld a, 2     ; Tile index = 0
+    ld [hli], a
+    ld [hli], a ; Attributes = %0000_0000
+    ; Sprite 3
+    ld a, 8 + 16    ; Y = 16
+    ld [hli], a
+    ld a, 8 + 8
+    ld [hli], a ; X = 8
+    ld a, 3     ; Tile index = 0
+    ld [hli], a
+    ld [hli], a ; Attributes = %0000_0000
+
     ; Turn the LCD on
     ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON
     ld [rLCDC], a
