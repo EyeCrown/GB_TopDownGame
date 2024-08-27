@@ -2,6 +2,9 @@ INCLUDE "hardware.inc"
 
 ; DEF VAR_NAME EQU $value
 
+DEF MIDDLE_SCREEN_X EQU SCRN_X / 2 + 8
+DEF MIDDLE_SCREEN_Y EQU SCRN_Y / 2 + 16
+
 SECTION "Counter", WRAM0
     wFrameCounter: db
 
@@ -80,33 +83,33 @@ ClearOam:
 
     ld hl, _OAMRAM
     ; Sprite 0
-    ld a, 16    ; Y = 16
+    ld a, MIDDLE_SCREEN_Y - 8    ; Y = 16
     ld [hli], a
-    ld a, 8
+    ld a, MIDDLE_SCREEN_X - 8
     ld [hli], a ; X = 8
     ld a, 0     ; Tile index = 0
     ld [hli], a
     ld [hli], a ; Attributes = %0000_0000
     ; Sprite 1
-    ld a, 16    ; Y = 16
+    ld a, MIDDLE_SCREEN_Y - 8    ; Y = 16
     ld [hli], a
-    ld a, 8 + 8
+    ld a, MIDDLE_SCREEN_X
     ld [hli], a ; X = 8
     ld a, 1     ; Tile index = 0
     ld [hli], a
     ld [hli], a ; Attributes = %0000_0000
     ; Sprite 2
-    ld a, 8 + 16    ; Y = 16
+    ld a, MIDDLE_SCREEN_Y       ; Y = 16
     ld [hli], a
-    ld a, 8
+    ld a, MIDDLE_SCREEN_X - 8
     ld [hli], a ; X = 8
     ld a, 2     ; Tile index = 0
     ld [hli], a
     ld [hli], a ; Attributes = %0000_0000
     ; Sprite 3
-    ld a, 8 + 16    ; Y = 16
+    ld a, MIDDLE_SCREEN_Y       ; Y = 16
     ld [hli], a
-    ld a, 8 + 8
+    ld a, MIDDLE_SCREEN_X
     ld [hli], a ; X = 8
     ld a, 3     ; Tile index = 0
     ld [hli], a
@@ -163,35 +166,55 @@ CheckLeft:
     and a, PADF_LEFT
     jp z, CheckRight
 Left:
-    ld h, HIGH(rSCX)
-    ld l,  LOW(rSCX)
-    dec [hl]
+    ; ld h, HIGH(rSCX)
+    ; ld l,  LOW(rSCX)
+    ; dec [hl]
+    ld e, 1
+    ld hl, _OAMRAM
+    ld c, 4
+    call MoveNegativeXObjectLoop
+
     ; Then check the right button
 CheckRight:
     ld a, [wCurKeys]
     and a, PADF_RIGHT
     jp z, CheckUp 
 Right:
-    ld h, HIGH(rSCX)
-    ld l,  LOW(rSCX)
-    inc [hl]
+    ; ld h, HIGH(rSCX)
+    ; ld l,  LOW(rSCX)
+    ; inc [hl]
+    ld e, 1
+    ld hl, _OAMRAM
+    ld c, 4
+    call MovePositiveXObjectLoop
+
+
 CheckUp:
     ld a, [wCurKeys]
     and a, PADF_UP
     jp z, CheckDown
 Up:
-    ld h, HIGH(rSCY)
-    ld l,  LOW(rSCY)
-    dec [hl]
+    ld d, 1
+    ld hl, _OAMRAM
+    ld b, 4
+    call MoveNegativeYObjectLoop
+    
+    ; ld h, HIGH(rSCY)
+    ; ld l,  LOW(rSCY)
+    ; dec [hl]
     ; Then check the button
 CheckDown:
     ld a, [wCurKeys]
     and a, PADF_DOWN
     jp z, CheckAButton 
 Down:
-    ld h, HIGH(rSCY)
-    ld l,  LOW(rSCY)
-    inc [hl]
+    ; ld h, HIGH(rSCY)
+    ; ld l,  LOW(rSCY)
+    ; inc [hl]
+    ld d, 1
+    ld hl, _OAMRAM
+    ld b, 4
+    call MovePositiveYObjectLoop
 
 CheckAButton:
     ld a, [wCurKeys]
@@ -230,6 +253,81 @@ EndOfMain:
 ;       UTILS                        ;
 ;                                    ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Move ++ object on Y
+; @param  d: Y direction
+; @param hl: OAM Address
+; @param  b: Number of OAM objects to move
+MovePositiveYObjectLoop:
+    xor a       ; a = 0
+    cp a, b     ; a == b
+    ret z
+    dec b       ; --b
+
+    ld a, [hl]  
+    add d
+
+    ld [hli], a
+    inc hl
+    inc hl
+    inc hl
+    jp MovePositiveYObjectLoop
+
+; Move -- object on Y
+; @param  d: Y direction 
+; @param hl: OAM Address
+; @param  b: Number of OAM objects to move
+MoveNegativeYObjectLoop:
+    xor a       ; a = 0
+    cp a, b     ; a == b
+    ret z
+    dec b       ; --b
+
+    ld a, [hl]
+    sub d
+    ld [hli], a
+    inc hl
+    inc hl
+    inc hl
+    jp MoveNegativeYObjectLoop
+
+; Move ++ object on X
+; @param  e: X direction 
+; @param hl: OAM Address
+; @param  c: Number of OAM objects to move
+MovePositiveXObjectLoop:
+    xor a       ; a = 0
+    cp a, c     ; a == c
+    ret z
+    dec c       ; --c
+
+    inc hl
+    ld a, [hl]  
+    add e
+
+    ld [hli], a
+    inc hl
+    inc hl
+    jp MovePositiveXObjectLoop
+
+; Move -- object on X
+; @param  e: X direction 
+; @param hl: OAM Address
+; @param  c: Number of OAM objects to move
+MoveNegativeXObjectLoop:
+    xor a       ; a = 0
+    cp a, c     ; a == c
+    ret z
+    dec c       ; --b
+
+    inc hl
+    ld a, [hl]
+    sub e
+    ld [hli], a
+    inc hl
+    inc hl
+    jp MoveNegativeXObjectLoop
+
 
 ; Copy bytes from one area to another.
 ; @param de: Source
@@ -280,6 +378,13 @@ UpdateKeys:
     or a, $F0 ; A7-4 = 1; A3-0 = unpressed keys
 .knownret
     ret
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                    ;
+;       SPRITES                      ;
+;                                    ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 PlayerTiles: INCBIN "res/img/2bppFiles/TestPlayer.2bpp"
