@@ -169,10 +169,13 @@ Left:
     ; ld h, HIGH(rSCX)
     ; ld l,  LOW(rSCX)
     ; dec [hl]
-    ld e, 1
+    /* ld e, 1
     ld hl, _OAMRAM
     ld c, 4
-    call MoveNegativeXObjectLoop
+    call MoveNegativeXObjectLoop */
+    ld hl, _OAMRAM
+    ld d, 4
+    call MoveLeftObjectXPos
 
     ; Then check the right button
 CheckRight:
@@ -183,21 +186,27 @@ Right:
     ; ld h, HIGH(rSCX)
     ; ld l,  LOW(rSCX)
     ; inc [hl]
-    ld e, 1
+    /* ld e, 1
     ld hl, _OAMRAM
     ld c, 4
-    call MovePositiveXObjectLoop
+    call MovePositiveXObjectLoop */
 
+    ld hl, _OAMRAM
+    ld d, 4
+    call MoveRightObjectXPos
 
 CheckUp:
     ld a, [wCurKeys]
     and a, PADF_UP
     jp z, CheckDown
 Up:
-    ld d, 1
+    /* ld d, 1
     ld hl, _OAMRAM
     ld b, 4
-    call MoveNegativeYObjectLoop
+    call MoveNegativeYObjectLoop */
+    ld hl, _OAMRAM
+    ld d, 4
+    call MoveUpObjectYPos
     
     ; ld h, HIGH(rSCY)
     ; ld l,  LOW(rSCY)
@@ -211,10 +220,16 @@ Down:
     ; ld h, HIGH(rSCY)
     ; ld l,  LOW(rSCY)
     ; inc [hl]
-    ld d, 1
+
+    /* ld d, 1
     ld hl, _OAMRAM
     ld b, 4
-    call MovePositiveYObjectLoop
+    call MovePositiveYObjectLoop */
+
+    ld hl, _OAMRAM
+    ld d, 4
+    call MoveDownObjectYPos
+    
 
 CheckAButton:
     ld a, [wCurKeys]
@@ -254,79 +269,84 @@ EndOfMain:
 ;                                    ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Move ++ object on Y
-; @param  d: Y direction
-; @param hl: OAM Address
-; @param  b: Number of OAM objects to move
-MovePositiveYObjectLoop:
-    xor a       ; a = 0
-    cp a, b     ; a == b
-    ret z
-    dec b       ; --b
 
-    ld a, [hl]  
-    add d
-
-    ld [hli], a
-    inc hl
-    inc hl
-    inc hl
-    jp MovePositiveYObjectLoop
-
-; Move -- object on Y
-; @param  d: Y direction 
-; @param hl: OAM Address
-; @param  b: Number of OAM objects to move
-MoveNegativeYObjectLoop:
-    xor a       ; a = 0
-    cp a, b     ; a == b
-    ret z
-    dec b       ; --b
-
+; Move down object in OAM Y Position 
+; @param hl: OAM address 
+; @param  d: Number of sprites
+MoveDownObjectYPos:
     ld a, [hl]
-    sub d
-    ld [hli], a
-    inc hl
-    inc hl
-    inc hl
-    jp MoveNegativeYObjectLoop
-
-; Move ++ object on X
-; @param  e: X direction 
-; @param hl: OAM Address
-; @param  c: Number of OAM objects to move
-MovePositiveXObjectLoop:
+    cp a, $90     ; Maximum = 160 - 16
+    ret nc
+MoveDownObjectYPosLoop:
     xor a       ; a = 0
-    cp a, c     ; a == c
+    cp a, d     ; a == d
     ret z
-    dec c       ; --c
-
-    inc hl
-    ld a, [hl]  
-    add e
-
-    ld [hli], a
+    dec d       ; --d
+        inc [hl]    ; YPos++
     inc hl
     inc hl
-    jp MovePositiveXObjectLoop
+    inc hl
+    inc hl
+    jp MoveDownObjectYPosLoop
 
-; Move -- object on X
-; @param  e: X direction 
-; @param hl: OAM Address
-; @param  c: Number of OAM objects to move
-MoveNegativeXObjectLoop:
+; Move up object in OAM by one pixel
+; @param hl: OAM address 
+; @param  d: Number of sprites
+MoveUpObjectYPos:
+    ld a, [hl]
+    cp a, $11     ; Minimum = 0 + 16 (+1)
+    ret c
+MoveUpObjectYPosLoop:
     xor a       ; a = 0
-    cp a, c     ; a == c
+    cp a, d     ; a == d
     ret z
-    dec c       ; --b
+    dec d       ; --d
+        dec [hl]    ; YPos--
+    inc hl
+    inc hl
+    inc hl
+    inc hl
+    jp MoveUpObjectYPosLoop
 
+; Move right object in OAM by one pixel
+; @param hl: OAM address
+; @param  d: Number of sprites
+MoveRightObjectXPos:
     inc hl
     ld a, [hl]
-    sub e
-    ld [hli], a
+    cp a, $98     ; Maximum = 160 - 8
+    ret nc
+MoveRightObjectXPosLoop:
+    xor a       ; a = 0
+    cp a, d     ; a == d
+    ret z
+    dec d       ; --d
+        inc [hl]    ; YPos++
     inc hl
     inc hl
-    jp MoveNegativeXObjectLoop
+    inc hl
+    inc hl
+    jp MoveRightObjectXPosLoop
+
+; Move left object in OAM by one pixel
+; @param hl: OAM address 
+; @param  d: Number of sprites
+MoveLeftObjectXPos:
+    inc hl
+    ld a, [hl]
+    cp a, $09     ; Minimum = 0 + 8 (+1)
+    ret c
+MoveLeftObjectXPosLoop:
+    xor a       ; a = 0
+    cp a, d     ; a == d
+    ret z
+    dec d       ; --d
+        dec [hl]    ; YPos--
+    inc hl
+    inc hl
+    inc hl
+    inc hl
+    jp MoveLeftObjectXPosLoop
 
 
 ; Copy bytes from one area to another.
