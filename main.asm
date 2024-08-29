@@ -37,6 +37,12 @@ WaitVBlank:
     ld bc, PlayerTilesEnd - PlayerTiles
     call Memcopy
 
+    ; Copy the projectile tile data
+    ld de, Projectile
+    ld hl, $8040
+    ld bc, ProjectileEnd - Projectile
+    call Memcopy
+
     ; Copy the tile data
     ld de, Tiles
     ld hl, $9000
@@ -82,6 +88,9 @@ ClearOam:
 
 
     ld hl, _OAMRAM
+
+    ; PLAYER SPRITE IN OAM
+
     ; Sprite 0
     ld a, MIDDLE_SCREEN_Y - 8    ; Y = 16
     ld [hli], a
@@ -97,6 +106,7 @@ ClearOam:
     ld [hli], a ; X = 8
     ld a, 1     ; Tile index = 0
     ld [hli], a
+    xor a
     ld [hli], a ; Attributes = %0000_0000
     ; Sprite 2
     ld a, MIDDLE_SCREEN_Y       ; Y = 16
@@ -105,6 +115,7 @@ ClearOam:
     ld [hli], a ; X = 8
     ld a, 2     ; Tile index = 0
     ld [hli], a
+    xor a
     ld [hli], a ; Attributes = %0000_0000
     ; Sprite 3
     ld a, MIDDLE_SCREEN_Y       ; Y = 16
@@ -115,12 +126,24 @@ ClearOam:
     ld [hli], a
     ld [hli], a ; Attributes = %0000_0000
 
+    ; PROJECTILE SPRITE IN OAM
+
+    ; Sprite 0
+    ld a, SCRN_Y - 32    ;
+    ld [hli], a
+    ld a, SCRN_X - 16
+    ld [hli], a ; 
+    ld a, 4     ; Tile index = 0
+    ld [hli], a
+    xor a
+    ld [hli], a ; Attributes = %0000_0000
+
     ; Turn the LCD on
     ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON
     ld [rLCDC], a
     
     ; During the first (blank) frame, initialize display registers
-    ld a, %11_10_01_00
+    ld a, %01_00_01_00
     ld [rBGP], a
     ld a, %11_10_01_00
     ld [rOBP0], a
@@ -142,17 +165,12 @@ WaitVBlank2:
     cp 144
     jp c, WaitVBlank2
 
-
-    ld a, [wFrameCounter]
-    inc a
-    cp a, 60    ; 60 FPS
-    jp nz, Continue
-    ld a, 0
-
-Continue:
+    ld a, [wFrameCounter]    ; 256 = 60 * 4
+    add a, $04
     ld [wFrameCounter], a
-    ; Check the current keys every frame and move left and right.
-    call UpdateKeys
+
+
+    call UpdateProjectile
 
 
 
@@ -161,18 +179,16 @@ Continue:
 ;       INPUTS                       ;
 ;                                    ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    ; Check the current keys every frame and move left and right.
+    call UpdateKeys
+
 CheckLeft:
     ld a, [wCurKeys]
     and a, PADF_LEFT
     jp z, CheckRight
 Left:
-    ; ld h, HIGH(rSCX)
-    ; ld l,  LOW(rSCX)
-    ; dec [hl]
-    /* ld e, 1
-    ld hl, _OAMRAM
-    ld c, 4
-    call MoveNegativeXObjectLoop */
+
     ld hl, _OAMRAM
     ld d, 4
     call MoveLeftObjectXPos
@@ -183,13 +199,6 @@ CheckRight:
     and a, PADF_RIGHT
     jp z, CheckUp 
 Right:
-    ; ld h, HIGH(rSCX)
-    ; ld l,  LOW(rSCX)
-    ; inc [hl]
-    /* ld e, 1
-    ld hl, _OAMRAM
-    ld c, 4
-    call MovePositiveXObjectLoop */
 
     ld hl, _OAMRAM
     ld d, 4
@@ -200,31 +209,17 @@ CheckUp:
     and a, PADF_UP
     jp z, CheckDown
 Up:
-    /* ld d, 1
-    ld hl, _OAMRAM
-    ld b, 4
-    call MoveNegativeYObjectLoop */
+
     ld hl, _OAMRAM
     ld d, 4
     call MoveUpObjectYPos
-    
-    ; ld h, HIGH(rSCY)
-    ; ld l,  LOW(rSCY)
-    ; dec [hl]
+
     ; Then check the button
 CheckDown:
     ld a, [wCurKeys]
     and a, PADF_DOWN
     jp z, CheckAButton 
 Down:
-    ; ld h, HIGH(rSCY)
-    ; ld l,  LOW(rSCY)
-    ; inc [hl]
-
-    /* ld d, 1
-    ld hl, _OAMRAM
-    ld b, 4
-    call MovePositiveYObjectLoop */
 
     ld hl, _OAMRAM
     ld d, 4
@@ -259,6 +254,38 @@ BButton:
     ; End of Main loop
 EndOfMain:
     jp Main
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                    ;
+;       METHODS                      ;
+;                                    ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+UpdateProjectile: 
+    
+    ld hl, _OAMRAM + (sizeof_OAM_ATTRS * 4)
+    ld d, 1
+    call MoveLeftObjectXPos
+    ld hl, _OAMRAM + (sizeof_OAM_ATTRS * 4)
+    ld d, 1
+    call MoveLeftObjectXPos
+
+    ld a, [_OAMRAM + (sizeof_OAM_ATTRS * 4) + 1]
+    cp a, $09
+    ret nc
+    ld a, SCRN_X
+    ld [_OAMRAM + (sizeof_OAM_ATTRS * 4) + 1], a
+    ret
+
+
+
+
+
 
 
 
@@ -410,6 +437,8 @@ UpdateKeys:
 PlayerTiles: INCBIN "res/img/2bppFiles/TestPlayer.2bpp"
 PlayerTilesEnd:
 
+Projectile: INCBIN "res/img/2bppFiles/projectile.2bpp"
+ProjectileEnd:
 
 Tiles:
 White:      ; White tile

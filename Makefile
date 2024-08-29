@@ -31,4 +31,4 @@ images:
 	rgbgfx -c '#071821, #306850, #86c06c, #e0f8cf' -A -o res/img/heart_empty.2bpp res/img/heart_empty.png 
 
 image:
-	rgbgfx -a $(EXPORTFOLDER)/TestPlayer.attrmap -o $(EXPORTFOLDER)/TestPlayer.2bpp $(IMPORTFOLDER)/TestPlayer.png -t $(EXPORTFOLDER)/TestPlayer.tilemap
+	rgbgfx -a $(EXPORTFOLDER)/projectile.attrmap -o $(EXPORTFOLDER)/projectile.2bpp $(IMPORTFOLDER)/projectile.png -t $(EXPORTFOLDER)/projectile.tilemap
