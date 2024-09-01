@@ -171,7 +171,7 @@ WaitVBlank2:
 
 
     call UpdateProjectile
-
+    call DoOther
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
