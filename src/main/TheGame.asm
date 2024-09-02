@@ -1,4 +1,4 @@
-INCLUDE "hardware.inc"
+INCLUDE "src/main/utils/hardware.inc"
 
 ; DEF VAR_NAME EQU $value
 
@@ -434,10 +434,10 @@ UpdateKeys:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-PlayerTiles: INCBIN "res/img/2bppFiles/TestPlayer.2bpp"
+PlayerTiles: INCBIN "src/generated/sprites/TestPlayer.2bpp"
 PlayerTilesEnd:
 
-Projectile: INCBIN "res/img/2bppFiles/projectile.2bpp"
+Projectile: INCBIN "src/generated/sprites/projectile.2bpp"
 ProjectileEnd:
 
 Tiles:

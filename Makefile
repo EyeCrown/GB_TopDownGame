@@ -1,9 +1,9 @@
 # You can set the name of the .gb ROM file here
-PROJECTNAME    	= Game
+PROJECTNAME    	= TheGame
 SRCDIR      	= src
 LIBDIR      	= libs
 OBJDIR      	= obj
-DSTDIR      	= builds
+DSTDIR      	= dist
 RESDIR      	= $(SRCDIR)/resources
 ASMDIR          = $(SRCDIR)/main
 RESSPRITES      = $(RESDIR)/sprites
@@ -20,7 +20,7 @@ LINK := $(RGBDS)rgblink
 FIX := $(RGBDS)rgbfix
 
 # Tool flags
-ASMFLAGS := -L
+ASMFLAGS := 
 FIXFLAGS := -v -p 0xFF
 
 # Make does not offer a recursive wild card function, so here's one:
@@ -40,20 +40,17 @@ ASMSOURCES_COLLECTED = \
 
 OBJS = $(patsubst %.asm,$(OBJDIR)/%.o,$(notdir $(ASMSOURCES_COLLECTED)))
 
-all: $(BINS) copy #clean
+all: $(BINS) #clean
 
 
 NEEDED_GRAPHICS = \
-	$(GENBACKGROUNDS)/text-font.2bpp \
 	$(GENSPRITES)/TestPlayer.2bpp \
 	$(GENSPRITES)/projectile.2bpp 
 
-#	$(GENSPRITES)/player-ship.2bpp \
-	$(GENSPRITES)/enemy-ship.2bpp \
-	$(GENSPRITES)/bullet.2bpp \
-	$(GENBACKGROUNDS)/text-font.2bpp \
-	$(GENBACKGROUNDS)/star-field.tilemap \
-	$(GENBACKGROUNDS)/title-screen.tilemap
+# $(GENBACKGROUNDS)/text-font.2bpp 
+	
+
+
 
 # Generate sprites, ensuring the containing directories have been created.
 $(GENSPRITES)/%.2bpp: $(RESSPRITES)/%.png | $(GENSPRITES)
@@ -116,3 +113,10 @@ clean:
 	rm -rfv  $(PREPARE_DIRECTORIES)
 # Declare these targets as "not actually files".
 .PHONY: clean all
+
+
+
+# Copy final game to emulator's games folder
+ADDRWINDOWS=/mnt/c/Users/theoc/Coding/Perso/GameBoyExperimentation
+copy: 
+	cp $(DSTDIR)/$(PROJECTNAME).gb $(ADDRWINDOWS)
