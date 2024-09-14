@@ -8,7 +8,7 @@ include "src/main/utils/hardware.inc"
 
  SECTION "Input", ROM0
 
-Input::
+UpdateKeys::
   ; Poll half the controller
   ld a, P1F_GET_BTN
   call .onenibble
