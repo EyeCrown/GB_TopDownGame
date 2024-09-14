@@ -113,10 +113,3 @@ clean:
 	rm -rfv  $(PREPARE_DIRECTORIES)
 # Declare these targets as "not actually files".
 .PHONY: clean all
-
-
-
-# Copy final game to emulator's games folder
-ADDRWINDOWS=/mnt/c/Users/theoc/Coding/Perso/GameBoyExperimentation
-copy: 
-	cp $(DSTDIR)/$(PROJECTNAME).gb $(ADDRWINDOWS)
