@@ -1,2 +1,3 @@
-obj/input.o
-obj/TheGame.o
+# Folders to ignore
+/obj/
+
