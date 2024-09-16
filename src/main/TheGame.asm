@@ -44,38 +44,50 @@ WaitVBlank:
     call Memcopy
 
     ; Copy the tile data
-    ld de, Tiles
-    ld hl, $9000
-    ld bc, TilesEnd - Tiles
+    ; ld de, Tiles
+    ; ld hl, $9000
+    ; ld bc, TilesEnd - Tiles
+    ; call Memcopy
+
+    ; Copy the level tilemap
+    ld de, level1_Tilemap
+    ld hl, _SCRN0
+    ld bc, _SCRN1 - _SCRN0
     call Memcopy
 
-DrawBG:
-    ld h, HIGH(_SCRN0)
-    ld l,  LOW(_SCRN0)
-    inc hl
+    ; Copy the level tilemap
+    ld de, TileSet
+    ld hl, _VRAM9000
+    ld bc, TileSetEnd - TileSet
+    call Memcopy
 
-    ld c, $20
-DrawBGLoop:
-    ld b, $10
-
-    ld a, $01
-    and c
-    jp z, DrawBGLineEven
-    inc hl  ; impair / odd
-    jp DrawBGLineLoop
-
-DrawBGLineEven:
-    dec hl  ; pair  / even
-
-    
-DrawBGLineLoop:
-    ld a, $01
-    ld [hli], a
-    inc hl
-    dec b
-    jp nz, DrawBGLineLoop
-    dec c
-    jp nz, DrawBGLoop
+;DrawBG:
+;    ld h, HIGH(_SCRN0)
+;    ld l,  LOW(_SCRN0)
+;    inc hl
+;
+;    ld c, $20
+;DrawBGLoop:
+;    ld b, $10
+;
+;    ld a, $01
+;    and c
+;    jp z, DrawBGLineEven
+;    inc hl  ; impair / odd
+;    jp DrawBGLineLoop
+;
+;DrawBGLineEven:
+;    dec hl  ; pair  / even
+;
+;    
+;DrawBGLineLoop:
+;    ld a, $01
+;    ld [hli], a
+;    inc hl
+;    dec b
+;    jp nz, DrawBGLineLoop
+;    dec c
+;    jp nz, DrawBGLoop
 
 
     ld a, 0
@@ -143,7 +155,7 @@ ClearOam:
     ld [rLCDC], a
     
     ; During the first (blank) frame, initialize display registers
-    ld a, %01_00_01_00
+    ld a, %11_10_01_00
     ld [rBGP], a
     ld a, %11_10_01_00
     ld [rOBP0], a
@@ -428,3 +440,7 @@ Black:      ; Black tile
     dw `33333333
 BlackEnd:
 TilesEnd:
+
+TileSet: INCBIN "src/generated/backgrounds/TinySpriteSheet.2bpp"
+TileSetEnd:
+

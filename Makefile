@@ -45,7 +45,8 @@ all: $(BINS) #clean
 
 NEEDED_GRAPHICS = \
 	$(GENSPRITES)/TestPlayer.2bpp \
-	$(GENSPRITES)/projectile.2bpp 
+	$(GENSPRITES)/projectile.2bpp \
+	$(GENBACKGROUNDS)/TinySpriteSheet.2bpp 
 
 # $(GENBACKGROUNDS)/text-font.2bpp 
 	
@@ -54,7 +55,7 @@ NEEDED_GRAPHICS = \
 
 # Generate sprites, ensuring the containing directories have been created.
 $(GENSPRITES)/%.2bpp: $(RESSPRITES)/%.png | $(GENSPRITES)
-	$(GFX) --columns -o $@ $<
+	$(GFX) -o $@ $<
 
 # Generate background tile set, ensuring the containing directories have been created.
 $(GENBACKGROUNDS)/%.2bpp: $(RESBACKGROUNDS)/%.png | $(GENBACKGROUNDS)
