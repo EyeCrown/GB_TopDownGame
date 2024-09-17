@@ -202,8 +202,10 @@ CheckLeft:
 Left:
 
     ld hl, _OAMRAM
-    ld d, 4
-    call MoveLeftObjectXPos
+    call TryMoveLeft    
+    ; ld hl, _OAMRAM
+    ; ld d, 4
+    ; call MoveLeftObjectXPos
 
     ; Then check the right button
 CheckRight:
@@ -308,6 +310,31 @@ UpdateProjectile:
 ;                                    ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; Try move left Player
+; @param hl: OAM address
+TryMoveLeft:
+    ld c, [hl]
+    inc hl
+    ld b, [hl]
+    ld a, b
+    ;add a, -1
+    ld b, a
+    call GetTileByPixel
+    ld a, [hl]
+    call IsWallTile
+    ret z
+    ld a, c
+    add a, $0F
+    ld c, a
+    call GetTileByPixel
+    ld a, [hl]
+    call IsWallTile
+    ret z
+    ; Do move left
+    ld hl, _OAMRAM ; address of player object
+    ld d, 4
+    call MoveLeftObjectXPos
+    ret 
 
 ; Move down object in OAM Y Position 
 ; @param hl: OAM address 
@@ -321,7 +348,13 @@ MoveDownObjectYPosLoop:
     cp a, d     ; a == d
     ret z
     dec d       ; --d
-    inc [hl]    ; YPos++
+        ;inc [hl]    ; YPos++
+
+    ld a, [hl]
+    add a, 1
+    ld [hl], a
+    
+    
     inc hl
     inc hl
     inc hl
@@ -340,7 +373,11 @@ MoveUpObjectYPosLoop:
     cp a, d     ; a == d
     ret z
     dec d       ; --d
-        dec [hl]    ; YPos--
+        ;dec [hl]    ; YPos--
+        ld a, [hl]
+        add a, -1
+        ld [hl], a
+    
     inc hl
     inc hl
     inc hl
@@ -416,8 +453,8 @@ GetTileByPixel:
     sub a, l
     ld h, a
     ; Add the offset to the tilemap's base address, and we are done!
-    ld bc, $9800
-    add hl, bc
+    ld de, $9800
+    add hl, de
     ret
 
 
