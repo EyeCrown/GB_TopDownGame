@@ -321,7 +321,7 @@ MoveDownObjectYPosLoop:
     cp a, d     ; a == d
     ret z
     dec d       ; --d
-        inc [hl]    ; YPos++
+    inc [hl]    ; YPos++
     inc hl
     inc hl
     inc hl
@@ -424,8 +424,6 @@ GetTileByPixel:
 ; @param a: tile ID
 ; @return z: set if a is a wall.
 IsWallTile:
-    cp a, $00
-    ret z
     cp a, $01
     ret z
     cp a, $02
@@ -437,6 +435,14 @@ IsWallTile:
     cp a, $06
     ret z
     cp a, $07
+    ret z
+    cp a, $08
+    ret z
+    cp a, $09
+    ret z
+    cp a, $0A
+    ret z
+    cp a, $0B
     ret
 
 
