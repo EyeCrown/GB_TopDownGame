@@ -202,10 +202,7 @@ CheckLeft:
 Left:
 
     ld hl, _OAMRAM
-    call TryMoveLeft    
-    ; ld hl, _OAMRAM
-    ; ld d, 4
-    ; call MoveLeftObjectXPos
+    call TryMoveLeft
 
     ; Then check the right button
 CheckRight:
@@ -215,8 +212,7 @@ CheckRight:
 Right:
 
     ld hl, _OAMRAM
-    ld d, 4
-    call MoveRightObjectXPos
+    call TryMoveRight
 
 CheckUp:
     ld a, [wCurKeys]
@@ -225,8 +221,7 @@ CheckUp:
 Up:
 
     ld hl, _OAMRAM
-    ld d, 4
-    call MoveUpObjectYPos
+    call TryMoveUp
 
     ; Then check the button
 CheckDown:
@@ -236,8 +231,7 @@ CheckDown:
 Down:
 
     ld hl, _OAMRAM
-    ld d, 4
-    call MoveDownObjectYPos
+    call TryMoveDown
     
 
 CheckAButton:
@@ -339,6 +333,103 @@ TryMoveLeft:
     ld d, 4
     call MoveLeftObjectXPos
     ret 
+
+
+; Try move right Player
+; @param hl: OAM address
+TryMoveRight:
+    ; Put Y position into C reg
+    ld a, [hli]
+    sub a, 16   ; Don't forget the natural offset
+    ld c, a 
+    ; Put X position into B reg
+    ld a, [hl]
+    add a, $10  ; Add 16 pixels to get right side
+    sub a, 8    ; Don't forget the natural offset
+    add a, 1    ; Get X+1
+    ld b, a
+
+    call GetTileByPixel
+    ld a, [hl]
+    call IsWallTile
+    ret z
+    ld a, c
+    add a, $0F
+    ld c, a
+    call GetTileByPixel
+    ld a, [hl]
+    call IsWallTile
+    ret z
+    ; Do move right
+    ld hl, _OAMRAM ; address of player object
+    ld d, 4
+    call MoveRightObjectXPos
+    ret 
+
+
+; Try move up Player
+; @param hl: OAM address
+TryMoveUp:
+    ; Put Y position into C reg
+    ld a, [hli]
+    sub a, 16   ; Don't forget the natural offset
+    add a, -1   ; Get Y-1
+    ld c, a 
+    ; Put X position into B reg
+    ld a, [hl]
+    sub a, 8    ; Don't forget the natural offset
+    ld b, a
+
+    call GetTileByPixel
+    ld a, [hl]
+    call IsWallTile
+    ret z
+    ld a, b
+    add a, $0F
+    ld b, a
+    call GetTileByPixel
+    ld a, [hl]
+    call IsWallTile
+    ret z
+    ; Do move right
+    ld hl, _OAMRAM ; address of player object
+    ld d, 4
+    call MoveUpObjectYPos
+    ret 
+
+
+; Try move down Player
+; @param hl: OAM address
+TryMoveDown:
+    ; Put Y position into C reg
+    ld a, [hli]
+    add 16      ; Add 16 pixels to get down side
+    sub a, 16   ; Don't forget the natural offset
+    add a, 1   ; Get Y+1
+    ld c, a 
+    ; Put X position into B reg
+    ld a, [hl]
+    sub a, 8    ; Don't forget the natural offset
+    ld b, a
+
+    call GetTileByPixel
+    ld a, [hl]
+    call IsWallTile
+    ret z
+    ld a, b
+    add a, $0F
+    ld b, a
+    call GetTileByPixel
+    ld a, [hl]
+    call IsWallTile
+    ret z
+    ; Do move right
+    ld hl, _OAMRAM ; address of player object
+    ld d, 4
+    call MoveDownObjectYPos
+    ret 
+
+
 
 ; Move down object in OAM Y Position 
 ; @param hl: OAM address 
@@ -468,6 +559,8 @@ IsWallTile:
     cp a, $01
     ret z
     cp a, $02
+    ret z
+    cp a, $03
     ret z
     cp a, $04
     ret z
