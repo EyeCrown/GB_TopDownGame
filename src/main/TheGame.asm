@@ -313,12 +313,16 @@ UpdateProjectile:
 ; Try move left Player
 ; @param hl: OAM address
 TryMoveLeft:
-    ld c, [hl]
-    inc hl
-    ld b, [hl]
-    ld a, b
-    ;add a, -1
+    ; Put Y position into C reg
+    ld a, [hli]
+    sub a, 16   ; Don't forget the natural offset
+    ld c, a 
+    ; Put X position into B reg
+    ld a, [hl]
+    sub a, 8    ; Don't forget the natural offset
+    add a, -1   ; Get X-1
     ld b, a
+
     call GetTileByPixel
     ld a, [hl]
     call IsWallTile
