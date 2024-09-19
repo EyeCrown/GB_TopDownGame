@@ -1,4 +1,5 @@
 INCLUDE "src/main/utils/hardware.inc"
+INCLUDE "src/main/utils/constants.inc"
 
 ; DEF VAR_NAME EQU $value
 
@@ -52,7 +53,7 @@ WaitVBlank:
     ; Copy the level tilemap
     ld de, level1_Tilemap
     ld hl, _SCRN0
-    ld bc, _SCRN1 - _SCRN0
+    ld bc, level_LEN
     call Memcopy
 
     ; Copy the level tilemap

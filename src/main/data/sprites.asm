@@ -1,7 +1,8 @@
 SECTION "Sprites", ROM0
 
-DEF level1_LEN EQU 1024
-
 level1_Tilemap:: INCBIN "src/resources/backgrounds/level1.tilemap"
+level2_Tilemap:: INCBIN "src/resources/backgrounds/level2.tilemap"
+
+
 
 

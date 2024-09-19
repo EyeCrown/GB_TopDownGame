@@ -2,6 +2,7 @@ include "src/main/utils/hardware.inc"
 
 DEF PLAYER_MOVE_SPEED EQU 15
 
+DEF level_LEN EQU 1024
 
 ; from https://rgbds.gbdev.io/docs/v0.6.1/rgbasm.5#EXPRESSIONS
 ; The RS group of commands is a handy way of defining structure offsets:
