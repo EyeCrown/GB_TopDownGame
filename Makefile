@@ -40,7 +40,7 @@ ASMSOURCES_COLLECTED = \
 
 OBJS = $(patsubst %.asm,$(OBJDIR)/%.o,$(notdir $(ASMSOURCES_COLLECTED)))
 
-all: $(BINS) #clean
+all: clean $(BINS) 
 
 
 NEEDED_GRAPHICS = \
