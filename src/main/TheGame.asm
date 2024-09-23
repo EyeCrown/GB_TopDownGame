@@ -604,7 +604,7 @@ Memcopy:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-PlayerTiles: INCBIN "src/generated/sprites/TestPlayer.2bpp"
+PlayerTiles: INCBIN "src/generated/sprites/Player.2bpp"
 PlayerTilesEnd:
 
 Projectile: INCBIN "src/generated/sprites/projectile.2bpp"
