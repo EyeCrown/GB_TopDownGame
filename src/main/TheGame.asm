@@ -51,7 +51,7 @@ WaitVBlank:
     ; call Memcopy
 
     ; Copy the level tilemap
-    ld de, level1_Tilemap
+    ld de, level2_Tilemap
     ld hl, _SCRN0
     ld bc, level_LEN
     call Memcopy
@@ -322,18 +322,26 @@ TryMoveLeft:
     ld a, [hl]
     call IsWallTile
     ret z
+
     ld a, c
-    add a, $0F
+    add a, $07
+    ld c, a
+    call GetTileByPixel
+    ld a, [hl]
+    call IsWallTile
+    ret z
+
+    ld a, c
+    add a, $07
     ld c, a
     call GetTileByPixel
     ld a, [hl]
     call IsWallTile
     ret z
     ; Do move left
-    ld hl, _OAMRAM ; address of player object
-    ld d, 4
-    call MoveLeftObjectXPos
-    ret 
+    ld b, 0
+    ld c, -1
+    jp MovePlayer
 
 
 ; Try move right Player
@@ -354,18 +362,26 @@ TryMoveRight:
     ld a, [hl]
     call IsWallTile
     ret z
+
     ld a, c
-    add a, $0F
+    add a, $07
+    ld c, a
+    call GetTileByPixel
+    ld a, [hl]
+    call IsWallTile
+    ret z
+
+    ld a, c
+    add a, $07
     ld c, a
     call GetTileByPixel
     ld a, [hl]
     call IsWallTile
     ret z
     ; Do move right
-    ld hl, _OAMRAM ; address of player object
-    ld d, 4
-    call MoveRightObjectXPos
-    ret 
+    ld b, 0
+    ld c, 1
+    jp MovePlayer
 
 
 ; Try move up Player
@@ -385,18 +401,26 @@ TryMoveUp:
     ld a, [hl]
     call IsWallTile
     ret z
+
     ld a, b
-    add a, $0F
+    add a, $07
     ld b, a
     call GetTileByPixel
     ld a, [hl]
     call IsWallTile
     ret z
-    ; Do move right
-    ld hl, _OAMRAM ; address of player object
-    ld d, 4
-    call MoveUpObjectYPos
-    ret 
+
+    ld a, b
+    add a, $07
+    ld b, a
+    call GetTileByPixel
+    ld a, [hl]
+    call IsWallTile
+    ret z
+    ; Do move up
+    ld b, -1
+    ld c, 0
+    jp MovePlayer
 
 
 ; Try move down Player
@@ -417,18 +441,26 @@ TryMoveDown:
     ld a, [hl]
     call IsWallTile
     ret z
+
     ld a, b
-    add a, $0F
+    add a, $07
     ld b, a
     call GetTileByPixel
     ld a, [hl]
     call IsWallTile
     ret z
-    ; Do move right
-    ld hl, _OAMRAM ; address of player object
-    ld d, 4
-    call MoveDownObjectYPos
-    ret 
+
+    ld a, b
+    add a, $07
+    ld b, a
+    call GetTileByPixel
+    ld a, [hl]
+    call IsWallTile
+    ret z
+    ; Do move down
+    ld b, 1
+    ld c, 0
+    jp MovePlayer
 
 
 
@@ -521,6 +553,31 @@ MoveLeftObjectXPosLoop:
     jp MoveLeftObjectXPosLoop
 
 
+; Move player
+; @param b: Y offset
+; @param c: X offset
+MovePlayer:
+    ld hl, OAM_PLAYER_ADDR
+    ld d, OAM_PLAYER_SIZE
+
+MovePlayerLoop:
+    xor a
+    cp a, d
+    ret z
+    dec d
+
+    ld a, [hl]
+    add a, b
+    ld [hli], a
+    ld a, [hl]
+    add a, c
+    ld [hli], a
+    inc hl
+    inc hl
+
+    jp MovePlayerLoop
+
+
 ; Convert a pixel position to a tilemap address
 ; hl = $9800 + X + Y * 32
 ; @param b: X
@@ -557,27 +614,35 @@ GetTileByPixel:
 ; @param a: tile ID
 ; @return z: set if a is a wall.
 IsWallTile:
-    cp a, $01
+    cp a, TILE_WALL_HORIZONTAL
     ret z
-    cp a, $02
+    cp a, TILE_WALL_VERTICAL
     ret z
-    cp a, $03
+    cp a, TILE_WALL_TOP_LEFT_CORNER
     ret z
-    cp a, $04
+    cp a, TILE_WALL_BOT_LEFT_CORNER
     ret z
-    cp a, $05
+    cp a, TILE_WALL_BOT_RIGHT_CORNER
     ret z
-    cp a, $06
+    cp a, TILE_WALL_TOP_RIGHT_CORNER
     ret z
-    cp a, $07
+    cp a, TILE_WALL_CROSS_JUNCTION
     ret z
-    cp a, $08
+    cp a, TILE_WALL_B_L_R_JUNCTION
     ret z
-    cp a, $09
+    cp a, TILE_WALL_T_L_R_JUNCTION
     ret z
-    cp a, $0A
+    cp a, TILE_WALL_T_B_R_JUNCTION
     ret z
-    cp a, $0B
+    cp a, TILE_WALL_T_B_L_JUNCTION
+    ret z
+    cp a, TILE_WALL_LEFT_END
+    ret z
+    cp a, TILE_WALL_BOTTOM_END
+    ret z
+    cp a, TILE_WALL_RIGHT_END
+    ret z
+    cp a, TILE_WALL_TOP_END
     ret
 
 

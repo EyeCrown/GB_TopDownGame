@@ -4,22 +4,35 @@ DEF PLAYER_MOVE_SPEED EQU 15
 
 DEF level_LEN EQU 1024
 
-; from https://rgbds.gbdev.io/docs/v0.6.1/rgbasm.5#EXPRESSIONS
-; The RS group of commands is a handy way of defining structure offsets:
+DEF OAM_PLAYER_ADDR         EQU $FE00   ; 1st location in OAM
+DEF OAM_PLAYER_SIZE         EQU $04     ; Number of sprites of player
+
+; TILESET Constants ID =====================
 RSRESET
-DEF metasprite_y                RB   1
-DEF metasprite_x                RB   1
-DEF metasprite_tile             RB   1
-DEF metasprite_flag             RB   1
-DEF METASPRITE_BYTES_COUNT      RB   0
+DEF TILE_GROUND                     RB $01
 
+DEF TILE_WALL_HORIZONTAL            RB $01
+DEF TILE_WALL_VERTICAL              RB $01
 
-RSRESET
-DEF spriteTilesStart            RB _VRAM
-DEF PLAYER_TILES_START          RB 4*16
-DEF ENEMY_TILES_START           RB 4*16
-DEF BULLET_TILES_START          RB 0
+DEF TILE_WALL_TOP_LEFT_CORNER       RB $01
+DEF TILE_WALL_BOT_LEFT_CORNER       RB $01
+DEF TILE_WALL_BOT_RIGHT_CORNER      RB $01
+DEF TILE_WALL_TOP_RIGHT_CORNER      RB $01
 
+DEF TILE_WALL_CROSS_JUNCTION        RB $01  ; Order: Top | Bottom | Left | Right
+DEF TILE_WALL_B_L_R_JUNCTION        RB $01
+DEF TILE_WALL_T_L_R_JUNCTION        RB $01
+DEF TILE_WALL_T_B_R_JUNCTION        RB $01
+DEF TILE_WALL_T_B_L_JUNCTION        RB $01
+
+DEF TILE_WALL_LEFT_END              RB $01
+DEF TILE_WALL_BOTTOM_END            RB $01
+DEF TILE_WALL_RIGHT_END             RB $01
+DEF TILE_WALL_TOP_END               RB $01
+
+DEF TILE_DOOR_CLOSE                 RB $01
+DEF TILE_DOOR_OPEN                  RB $01
+DEF TILE_KEY                        RB $01
 
 ; Standard metasprite for "Pokemon" is a square 56px * 56px
 ; 56 = 7 sprites of 8px
