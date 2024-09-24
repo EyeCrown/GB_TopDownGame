@@ -1,7 +1,5 @@
 include "src/main/utils/hardware.inc"
 
-DEF PLAYER_MOVE_SPEED EQU 15
-
 DEF level_LEN EQU 1024
 
 DEF OAM_PLAYER_ADDR         EQU $FE00   ; 1st location in OAM
@@ -34,6 +32,37 @@ DEF TILE_DOOR_CLOSE                 RB $01
 DEF TILE_DOOR_OPEN                  RB $01
 DEF TILE_KEY                        RB $01
 
+
+; PLAYER Data  ==============================
+
+DEF PLAYER_OAM_ADDR EQU $FE00   ; ID° 0 in OAM
+
+
+DEF LVL1_SPAWN_X        EQU 16 
+DEF LVL1_SPAWN_Y        EQU 16
+
+DEF LVL2_DOOR_POSITION      EQU $99E3
+DEF LVL2_KEY_POSITION       EQU $98CA
+
+
+DEF LVL2_SPAWN_X        EQU SCRN_X / 2 + 8
+DEF LVL2_SPAWN_Y        EQU SCRN_Y / 2 + 16
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ; Standard metasprite for "Pokemon" is a square 56px * 56px
 ; 56 = 7 sprites of 8px
 ; MS stands for METASPRITE 
@@ -48,31 +77,6 @@ DEF MS_PLAYER_ID_SPRITE         EQU $B1
 DEF MS_PLAYER_POS               EQU $9D22
 
 DEF MS_STD_SIZE_IN_VRAM         EQU $310
-
-; Demon data access constants
-RSRESET
-DEF _ID         RB 1
-DEF _TYPE       RB 1
-DEF _HP         RB 1
-DEF _ATK        RB 1
-DEF _DEF        RB 1
-DEF _SPRITE     RW 1
-DEF _NAME       RB 8
-
-; Player data access constants
-; Team:
-RSRESET
-DEF _1ST          RW 1
-DEF _2ND          RW 1
-DEF _3RD          RW 1
-
-; Owned:
-RSRESET
-DEF _CURRENT_HP RB 1
-DEF _SPECIES    RW 1
-
-DEF _SIZE_OWNED RB 1
-
 
 ; HUD constants =====================
 ; Actions

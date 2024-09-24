@@ -14,7 +14,8 @@ SECTION "Input Variables", WRAM0
     wNewKeys:: db
 
 SECTION "Data", WRAM0
-
+    wCurLevelDoorAddr:: dw
+    wCurLevelKeyAddr:: dw
 
 SECTION "Header", ROM0[$100]
     jp EntryPoint
@@ -44,52 +45,24 @@ WaitVBlank:
     ld bc, ProjectileEnd - Projectile
     call Memcopy
 
-    ; Copy the tile data
-    ; ld de, Tiles
-    ; ld hl, $9000
-    ; ld bc, TilesEnd - Tiles
-    ; call Memcopy
-
     ; Copy the level tilemap
     ld de, level2_Tilemap
     ld hl, _SCRN0
     ld bc, level_LEN
     call Memcopy
 
-    ; Copy the level tilemap
+    ; Copy the backgorund tileset
     ld de, TileSet
     ld hl, _VRAM9000
     ld bc, TileSetEnd - TileSet
     call Memcopy
 
-;DrawBG:
-;    ld h, HIGH(_SCRN0)
-;    ld l,  LOW(_SCRN0)
-;    inc hl
-;
-;    ld c, $20
-;DrawBGLoop:
-;    ld b, $10
-;
-;    ld a, $01
-;    and c
-;    jp z, DrawBGLineEven
-;    inc hl  ; impair / odd
-;    jp DrawBGLineLoop
-;
-;DrawBGLineEven:
-;    dec hl  ; pair  / even
-;
-;    
-;DrawBGLineLoop:
-;    ld a, $01
-;    ld [hli], a
-;    inc hl
-;    dec b
-;    jp nz, DrawBGLineLoop
-;    dec c
-;    jp nz, DrawBGLoop
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                    ;
+;       OAM DATA                     ;
+;                                    ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
     ld a, 0
     ld b, 160
@@ -99,47 +72,11 @@ ClearOam:
     dec b
     jp nz, ClearOam
 
+    ld b, LVL1_SPAWN_Y
+    ld c, LVL1_SPAWN_X
+    call SetPlayerPosition
 
-    ld hl, _OAMRAM
-
-    ; PLAYER SPRITE IN OAM
-
-    ; Sprite 0
-    ld a, MIDDLE_SCREEN_Y - 8    ; Y = 16
-    ld [hli], a
-    ld a, MIDDLE_SCREEN_X - 8
-    ld [hli], a ; X = 8
-    ld a, 0     ; Tile index = 0
-    ld [hli], a
-    ld [hli], a ; Attributes = %0000_0000
-    ; Sprite 1
-    ld a, MIDDLE_SCREEN_Y - 8    ; Y = 16
-    ld [hli], a
-    ld a, MIDDLE_SCREEN_X
-    ld [hli], a ; X = 8
-    ld a, 1     ; Tile index = 0
-    ld [hli], a
-    xor a
-    ld [hli], a ; Attributes = %0000_0000
-    ; Sprite 2
-    ld a, MIDDLE_SCREEN_Y       ; Y = 16
-    ld [hli], a
-    ld a, MIDDLE_SCREEN_X - 8
-    ld [hli], a ; X = 8
-    ld a, 2     ; Tile index = 0
-    ld [hli], a
-    xor a
-    ld [hli], a ; Attributes = %0000_0000
-    ; Sprite 3
-    ld a, MIDDLE_SCREEN_Y       ; Y = 16
-    ld [hli], a
-    ld a, MIDDLE_SCREEN_X
-    ld [hli], a ; X = 8
-    ld a, 3     ; Tile index = 0
-    ld [hli], a
-    ld [hli], a ; Attributes = %0000_0000
-
-    ; PROJECTILE SPRITE IN OAM
+    /* ; PROJECTILE SPRITE IN OAM
 
     ; Sprite 0
     ld a, SCRN_Y - 32    ;
@@ -149,7 +86,7 @@ ClearOam:
     ld a, 4     ; Tile index = 0
     ld [hli], a
     xor a
-    ld [hli], a ; Attributes = %0000_0000
+    ld [hli], a ; Attributes = %0000_0000 */
 
     ; Turn the LCD on
     ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON
@@ -163,6 +100,16 @@ ClearOam:
     
     ld a, 0
     ld [wFrameCounter], a
+
+    ld a, HIGH(LVL2_DOOR_POSITION)
+    ld [wCurLevelDoorAddr], a
+    ld a, LOW(LVL2_DOOR_POSITION)
+    ld [wCurLevelDoorAddr+1], a
+
+    ld a, HIGH(LVL2_KEY_POSITION)
+    ld [wCurLevelKeyAddr], a
+    ld a, LOW(LVL2_KEY_POSITION)
+    ld [wCurLevelKeyAddr+1], a
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                    ;
@@ -183,8 +130,7 @@ WaitVBlank2:
     ld [wFrameCounter], a
 
 
-    call UpdateProjectile
-    call DoOther
+    ;call UpdateProjectile
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -275,7 +221,7 @@ EndOfMain:
 ;                                    ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-UpdateProjectile: 
+/* UpdateProjectile: 
     
     ld hl, _OAMRAM + (sizeof_OAM_ATTRS * 4)
     ld d, 1
@@ -289,7 +235,7 @@ UpdateProjectile:
     ret nc
     ld a, SCRN_X
     ld [_OAMRAM + (sizeof_OAM_ATTRS * 4) + 1], a
-    ret
+    ret */
 
 
 
@@ -320,6 +266,7 @@ TryMoveLeft:
 
     call GetTileByPixel
     ld a, [hl]
+    call IsKeyTile
     call IsWallTile
     ret z
 
@@ -328,6 +275,7 @@ TryMoveLeft:
     ld c, a
     call GetTileByPixel
     ld a, [hl]
+    call IsKeyTile
     call IsWallTile
     ret z
 
@@ -336,8 +284,10 @@ TryMoveLeft:
     ld c, a
     call GetTileByPixel
     ld a, [hl]
+    call IsKeyTile
     call IsWallTile
     ret z
+
     ; Do move left
     ld b, 0
     ld c, -1
@@ -355,11 +305,12 @@ TryMoveRight:
     ld a, [hl]
     add a, $10  ; Add 16 pixels to get right side
     sub a, 8    ; Don't forget the natural offset
-    add a, 1    ; Get X+1
+    ;add a, 1    ; Get X+1
     ld b, a
 
     call GetTileByPixel
     ld a, [hl]
+    call IsKeyTile
     call IsWallTile
     ret z
 
@@ -368,6 +319,7 @@ TryMoveRight:
     ld c, a
     call GetTileByPixel
     ld a, [hl]
+    call IsKeyTile
     call IsWallTile
     ret z
 
@@ -376,8 +328,10 @@ TryMoveRight:
     ld c, a
     call GetTileByPixel
     ld a, [hl]
+    call IsKeyTile
     call IsWallTile
     ret z
+
     ; Do move right
     ld b, 0
     ld c, 1
@@ -399,6 +353,7 @@ TryMoveUp:
 
     call GetTileByPixel
     ld a, [hl]
+    call IsKeyTile
     call IsWallTile
     ret z
 
@@ -407,16 +362,19 @@ TryMoveUp:
     ld b, a
     call GetTileByPixel
     ld a, [hl]
+    call IsKeyTile
     call IsWallTile
-    ret z
-
+    ret z    
+    
     ld a, b
     add a, $07
     ld b, a
     call GetTileByPixel
     ld a, [hl]
+    call IsKeyTile
     call IsWallTile
     ret z
+
     ; Do move up
     ld b, -1
     ld c, 0
@@ -430,7 +388,7 @@ TryMoveDown:
     ld a, [hli]
     add 16      ; Add 16 pixels to get down side
     sub a, 16   ; Don't forget the natural offset
-    add a, 1   ; Get Y+1
+    ;add a, 1   ; Get Y+1
     ld c, a 
     ; Put X position into B reg
     ld a, [hl]
@@ -439,6 +397,7 @@ TryMoveDown:
 
     call GetTileByPixel
     ld a, [hl]
+    call IsKeyTile
     call IsWallTile
     ret z
 
@@ -447,6 +406,7 @@ TryMoveDown:
     ld b, a
     call GetTileByPixel
     ld a, [hl]
+    call IsKeyTile
     call IsWallTile
     ret z
 
@@ -455,8 +415,10 @@ TryMoveDown:
     ld b, a
     call GetTileByPixel
     ld a, [hl]
+    call IsKeyTile
     call IsWallTile
     ret z
+
     ; Do move down
     ld b, 1
     ld c, 0
@@ -464,118 +426,7 @@ TryMoveDown:
 
 
 
-; Move down object in OAM Y Position 
-; @param hl: OAM address 
-; @param  d: Number of sprites
-MoveDownObjectYPos:
-    ld a, [hl]
-    cp a, $90     ; Maximum = 160 - 16
-    ret nc
-MoveDownObjectYPosLoop:
-    xor a       ; a = 0
-    cp a, d     ; a == d
-    ret z
-    dec d       ; --d
-        ;inc [hl]    ; YPos++
 
-    ld a, [hl]
-    add a, 1
-    ld [hl], a
-    
-    
-    inc hl
-    inc hl
-    inc hl
-    inc hl
-    jp MoveDownObjectYPosLoop
-
-; Move up object in OAM by one pixel
-; @param hl: OAM address 
-; @param  d: Number of sprites
-MoveUpObjectYPos:
-    ld a, [hl]
-    cp a, $11     ; Minimum = 0 + 16 (+1)
-    ret c
-MoveUpObjectYPosLoop:
-    xor a       ; a = 0
-    cp a, d     ; a == d
-    ret z
-    dec d       ; --d
-        ;dec [hl]    ; YPos--
-        ld a, [hl]
-        add a, -1
-        ld [hl], a
-    
-    inc hl
-    inc hl
-    inc hl
-    inc hl
-    jp MoveUpObjectYPosLoop
-
-; Move right object in OAM by one pixel
-; @param hl: OAM address
-; @param  d: Number of sprites
-MoveRightObjectXPos:
-    inc hl
-    ld a, [hl]
-    cp a, $98     ; Maximum = 160 - 8
-    ret nc
-MoveRightObjectXPosLoop:
-    xor a       ; a = 0
-    cp a, d     ; a == d
-    ret z
-    dec d       ; --d
-        inc [hl]    ; YPos++
-    inc hl
-    inc hl
-    inc hl
-    inc hl
-    jp MoveRightObjectXPosLoop
-
-; Move left object in OAM by one pixel
-; @param hl: OAM address 
-; @param  d: Number of sprites
-MoveLeftObjectXPos:
-    inc hl
-    ld a, [hl]
-    cp a, $09     ; Minimum = 0 + 8 (+1)
-    ret c
-MoveLeftObjectXPosLoop:
-    xor a       ; a = 0
-    cp a, d     ; a == d
-    ret z
-    dec d       ; --d
-        dec [hl]    ; YPos--
-    inc hl
-    inc hl
-    inc hl
-    inc hl
-    jp MoveLeftObjectXPosLoop
-
-
-; Move player
-; @param b: Y offset
-; @param c: X offset
-MovePlayer:
-    ld hl, OAM_PLAYER_ADDR
-    ld d, OAM_PLAYER_SIZE
-
-MovePlayerLoop:
-    xor a
-    cp a, d
-    ret z
-    dec d
-
-    ld a, [hl]
-    add a, b
-    ld [hli], a
-    ld a, [hl]
-    add a, c
-    ld [hli], a
-    inc hl
-    inc hl
-
-    jp MovePlayerLoop
 
 
 ; Convert a pixel position to a tilemap address
@@ -610,7 +461,7 @@ GetTileByPixel:
     add hl, de
     ret
 
-
+; Check if the tile is a wall
 ; @param a: tile ID
 ; @return z: set if a is a wall.
 IsWallTile:
@@ -645,6 +496,40 @@ IsWallTile:
     cp a, TILE_WALL_TOP_END
     ret
 
+; Check if the tile is a key
+; @param a: tile ID
+; @return z: set if a is a key.
+IsKeyTile:
+    cp a, TILE_KEY
+    ret nz
+UnlockDoor:
+    ld a, [wCurLevelDoorAddr]
+    ld h, a
+    ld a, [wCurLevelDoorAddr+1]
+    ld l, a
+    ld [hl], TILE_DOOR_OPEN
+    
+    ld a, [wCurLevelKeyAddr]
+    ld h, a
+    ld a, [wCurLevelKeyAddr+1]
+    ld l, a
+    ld [hl], TILE_GROUND
+    call PlayBounceSound
+
+    ret
+
+
+PlayBounceSound:
+    ld a, $85
+    ld [rNR21], a
+    ld a, $70
+    ld [rNR22], a
+    ld a, $0d
+    ld [rNR23], a
+    ld a, $c3
+    ld [rNR24], a
+    ret
+
 
 ; Copy bytes from one area to another.
 ; @param de: Source
@@ -661,8 +546,6 @@ Memcopy:
     ret
 
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                    ;
 ;       SPRITES                      ;
@@ -675,29 +558,6 @@ PlayerTilesEnd:
 
 Projectile: INCBIN "src/generated/sprites/projectile.2bpp"
 ProjectileEnd:
-
-Tiles:
-White:      ; White tile
-    dw `00000000
-    dw `00000000
-    dw `00000000
-    dw `00000000
-    dw `00000000
-    dw `00000000
-    dw `00000000
-    dw `00000000
-WhiteEnd:
-Black:      ; Black tile
-    dw `33333333
-    dw `33333333
-    dw `33333333
-    dw `33333333
-    dw `33333333
-    dw `33333333
-    dw `33333333
-    dw `33333333
-BlackEnd:
-TilesEnd:
 
 TileSet: INCBIN "src/generated/backgrounds/TinySpriteSheet.2bpp"
 TileSetEnd:
