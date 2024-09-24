@@ -45,6 +45,7 @@ all: clean $(BINS)
 
 NEEDED_GRAPHICS = \
 	$(GENSPRITES)/TestPlayer.2bpp \
+	$(GENSPRITES)/Player.2bpp \
 	$(GENSPRITES)/projectile.2bpp \
 	$(GENBACKGROUNDS)/TinySpriteSheet.2bpp 
 
