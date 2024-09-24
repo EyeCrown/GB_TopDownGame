@@ -148,7 +148,6 @@ CheckLeft:
     jp z, CheckRight
 Left:
 
-    ld hl, _OAMRAM
     call TryMoveLeft
 
     ; Then check the right button
@@ -158,7 +157,6 @@ CheckRight:
     jp z, CheckUp 
 Right:
 
-    ld hl, _OAMRAM
     call TryMoveRight
 
 CheckUp:
@@ -167,7 +165,6 @@ CheckUp:
     jp z, CheckDown
 Up:
 
-    ld hl, _OAMRAM
     call TryMoveUp
 
     ; Then check the button
@@ -177,7 +174,6 @@ CheckDown:
     jp z, CheckAButton 
 Down:
 
-    ld hl, _OAMRAM
     call TryMoveDown
     
 
@@ -239,12 +235,6 @@ EndOfMain:
 
 
 
-
-
-
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                    ;
 ;       UTILS                        ;
@@ -254,6 +244,7 @@ EndOfMain:
 ; Try move left Player
 ; @param hl: OAM address
 TryMoveLeft:
+    ld hl, OAM_PLAYER_ADDR
     ; Put Y position into C reg
     ld a, [hli]
     sub a, 16   ; Don't forget the natural offset
@@ -291,12 +282,14 @@ TryMoveLeft:
     ; Do move left
     ld b, 0
     ld c, -1
-    jp MovePlayer
+    ;jp MovePlayer
+    jp MovePlayerNoLoop
 
 
 ; Try move right Player
 ; @param hl: OAM address
 TryMoveRight:
+    ld hl, OAM_PLAYER_ADDR
     ; Put Y position into C reg
     ld a, [hli]
     sub a, 16   ; Don't forget the natural offset
@@ -305,7 +298,6 @@ TryMoveRight:
     ld a, [hl]
     add a, $10  ; Add 16 pixels to get right side
     sub a, 8    ; Don't forget the natural offset
-    ;add a, 1    ; Get X+1
     ld b, a
 
     call GetTileByPixel
@@ -335,12 +327,14 @@ TryMoveRight:
     ; Do move right
     ld b, 0
     ld c, 1
-    jp MovePlayer
+    ;p MovePlayer
+    jp MovePlayerNoLoop
 
 
 ; Try move up Player
 ; @param hl: OAM address
 TryMoveUp:
+    ld hl, OAM_PLAYER_ADDR
     ; Put Y position into C reg
     ld a, [hli]
     sub a, 16   ; Don't forget the natural offset
@@ -378,12 +372,14 @@ TryMoveUp:
     ; Do move up
     ld b, -1
     ld c, 0
-    jp MovePlayer
+    ;jp MovePlayer
+    jp MovePlayerNoLoop
+
 
 
 ; Try move down Player
-; @param hl: OAM address
 TryMoveDown:
+    ld hl, OAM_PLAYER_ADDR
     ; Put Y position into C reg
     ld a, [hli]
     add 16      ; Add 16 pixels to get down side
@@ -422,8 +418,8 @@ TryMoveDown:
     ; Do move down
     ld b, 1
     ld c, 0
-    jp MovePlayer
-
+    ;jp MovePlayer
+    jp MovePlayerNoLoop
 
 
 
