@@ -2,8 +2,8 @@ include "src/main/utils/hardware.inc"
 
 DEF level_LEN EQU 1024
 
-DEF OAM_PLAYER_ADDR         EQU $FE00   ; 1st location in OAM
-DEF OAM_PLAYER_SIZE         EQU $04     ; Number of sprites of player
+DEF OAM_PLAYER_ADDR         EQU $00         ; 1st location in OAM
+DEF OAM_PLAYER_SIZE         EQU $04         ; Number of sprites of player
 
 ; TILESET Constants ID =====================
 RSRESET
@@ -37,9 +37,16 @@ DEF TILE_KEY                        RB $01
 
 DEF PLAYER_OAM_ADDR EQU $FE00   ; ID° 0 in OAM
 
+RSRESET
+DEF TILE_PLAYER_00      RB $01
+DEF TILE_PLAYER_01      RB $01
+DEF TILE_PLAYER_02      RB $01
+DEF TILE_PLAYER_03      RB $01
+
+
 
 DEF LVL1_SPAWN_X        EQU 16 
-DEF LVL1_SPAWN_Y        EQU 16
+DEF LVL1_SPAWN_Y        EQU 32
 
 DEF LVL2_DOOR_POSITION      EQU $99E3
 DEF LVL2_KEY_POSITION       EQU $98CA

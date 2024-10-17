@@ -64,7 +64,9 @@ WaitVBlank:
 ;                                    ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    ld a, 0
+    call InitSprObjLib
+
+    xor a, a
     ld b, 160
     ld hl, _OAMRAM
 ClearOam:
@@ -72,9 +74,17 @@ ClearOam:
     dec b
     jp nz, ClearOam
 
+    ld b, 160
+    ld hl, wShadowOAM
+ClearShadowOAM:
+    ld [hli], a
+    dec b
+    jp nz, ClearShadowOAM
+
+
     ld b, LVL1_SPAWN_Y
     ld c, LVL1_SPAWN_X
-    call SetPlayerPosition
+    call SetPlayerPositionVariables
 
     /* ; PROJECTILE SPRITE IN OAM
 
@@ -117,21 +127,34 @@ ClearOam:
 ;                                    ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Main:
+/* 
     ld a, [rLY]
     cp 144
-    jp nc, Main
+    jp nc, Main 
+*/
+
+    call ResetShadowOAM
+
 WaitVBlank2:
     ld a, [rLY]
     cp 144
     jp c, WaitVBlank2
+ 
+/*     
+    ld a, LOW(wShadowOAM)
+    ld l, a
+    ld a, HIGH(wShadowOAM)
+    ld h, a
 
-    ld a, [wFrameCounter]    ; 256 = 60 * 4
-    add a, $04
-    ld [wFrameCounter], a
-
-
-    ;call UpdateProjectile
-
+    ld a, $00
+    ld d, OAM_COUNT * sizeof_OAM_ATTRS
+loop:
+    ld [hli], a
+    inc a
+    dec d
+    jp nz, loop 
+*/
+    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                    ;
@@ -195,7 +218,7 @@ AButton:
 CheckBButton:
     ld a, [wCurKeys]
     and a, PADF_B
-    jp z, Main 
+    jp z, EndOfMain 
 BButton:
     ld a, [rBGP]
     rrca 
@@ -204,6 +227,13 @@ BButton:
     
     ; End of Main loop
 EndOfMain:
+
+    ; Put here function to render player
+    call DrawPlayerShadowOAM
+
+    ld a, HIGH(wShadowOAM)
+    call hOAMDMA
+
     jp Main
 
 
@@ -244,7 +274,10 @@ EndOfMain:
 ; Try move left Player
 ; @param hl: OAM address
 TryMoveLeft:
-    ld hl, OAM_PLAYER_ADDR
+    ld a, LOW(wPlayer_Y)
+    ld l, a
+    ld a, HIGH(wPlayer_Y)
+    ld h, a
     ; Put Y position into C reg
     ld a, [hli]
     sub a, 16   ; Don't forget the natural offset
@@ -289,7 +322,10 @@ TryMoveLeft:
 ; Try move right Player
 ; @param hl: OAM address
 TryMoveRight:
-    ld hl, OAM_PLAYER_ADDR
+    ld a, LOW(wPlayer_Y)
+    ld l, a
+    ld a, HIGH(wPlayer_Y)
+    ld h, a
     ; Put Y position into C reg
     ld a, [hli]
     sub a, 16   ; Don't forget the natural offset
@@ -334,7 +370,10 @@ TryMoveRight:
 ; Try move up Player
 ; @param hl: OAM address
 TryMoveUp:
-    ld hl, OAM_PLAYER_ADDR
+    ld a, LOW(wPlayer_Y)
+    ld l, a
+    ld a, HIGH(wPlayer_Y)
+    ld h, a
     ; Put Y position into C reg
     ld a, [hli]
     sub a, 16   ; Don't forget the natural offset
@@ -379,7 +418,10 @@ TryMoveUp:
 
 ; Try move down Player
 TryMoveDown:
-    ld hl, OAM_PLAYER_ADDR
+    ld a, LOW(wPlayer_Y)
+    ld l, a
+    ld a, HIGH(wPlayer_Y)
+    ld h, a
     ; Put Y position into C reg
     ld a, [hli]
     add 16      ; Add 16 pixels to get down side
