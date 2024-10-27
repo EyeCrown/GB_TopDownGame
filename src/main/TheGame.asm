@@ -82,8 +82,12 @@ ClearShadowOAM:
     jp nz, ClearShadowOAM
 
 
-    ld b, LVL1_SPAWN_Y
-    ld c, LVL1_SPAWN_X
+    ld a, LVL1_SPAWN_Y
+    add a, 16   ; Y correction
+    ld b, a
+    ld a, LVL1_SPAWN_X
+    add a, 8    ; X correction
+    ld c, a
     call SetPlayerPositionVariables
 
     /* ; PROJECTILE SPRITE IN OAM
@@ -272,7 +276,8 @@ EndOfMain:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Try move left Player
-; @param hl: OAM address
+; @param d: X offset check
+; @param e: Value of movement
 TryMoveLeft:
     ld a, LOW(wPlayer_Y)
     ld l, a
@@ -285,8 +290,10 @@ TryMoveLeft:
     ; Put X position into B reg
     ld a, [hl]
     sub a, 8    ; Don't forget the natural offset
-    add a, -1   ; Get X-1
-    ld b, a
+
+    add a, -1   ; Get X-1   
+
+    ld b, a     ; Put X Position - 1 into B reg
 
     call GetTileByPixel
     ld a, [hl]
@@ -331,8 +338,9 @@ TryMoveRight:
     ld c, a 
     ; Put X position into B reg
     ld a, [hl]
-    add a, $10  ; Add 16 pixels to get right side
     sub a, 8    ; Don't forget the natural offset
+    add a, $10  ; Add 16 pixels to get right side
+
     ld b, a
 
     call GetTileByPixel
@@ -468,6 +476,7 @@ TryMoveDown:
 ; @param b: X
 ; @param c: Y
 ; @return hl: tile address
+; @clobbers: de
 GetTileByPixel:
     ; First, we need to divide by 8 to convert a pixel position to a tile position.
     ; After this we want to multiply the Y position by 32.

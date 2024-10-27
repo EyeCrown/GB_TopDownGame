@@ -27,7 +27,7 @@ SetPlayerPositionVariables::
     ld [hl], a                  ;   |
     ret 
 
-; Set player to position on screen
+/* ; Set player to position on screen
 ; X Y top left corner
 ; @param b: Y position
 ; @param c: X position
@@ -81,7 +81,7 @@ SetPlayerPosition::
     xor a
     ld [hli], a ; Attributes = %0000_0000
     ret
-
+ */
 
 ; Update player position X/Y variables
 ; @param b: Y offset
@@ -99,7 +99,7 @@ MovePlayer::
     ld [hl], a
     ret 
 
-; Move player
+/* ; Move player
 ; @param b: Y offset
 ; @param c: X offset
 MovePlayerOld::
@@ -123,9 +123,9 @@ MovePlayerLoop:
     inc hl
     inc hl
 
-    jp MovePlayerLoop
+    jp MovePlayerLoop */
 
-; Move player but without a loop,
+/* ; Move player but without a loop,
 ; so no risk of obliterate character
 ; @param b: Y offset
 ; @param c: X offset
@@ -169,16 +169,17 @@ MovePlayerNoLoop::
     inc hl
 
     ret
-
+ */
 
 DrawPlayerShadowOAM::
     
+    ; Load Player Y & X coordinates into DE reg
     ld a, LOW(wPlayer_Y)
     ld l, a
     ld a, HIGH(wPlayer_Y)
     ld h, a
 
-    ld a, [hli]
+    ld a, [hli]      ; hl++ -> hl = wPlayer_X 
     ld d, a
 
     ld a, [hl]
@@ -193,12 +194,12 @@ DrawPlayerShadowOAM::
     ld h, a
     
     ; Sprite 0
-    ld a, d
-    ld [hli], a
-    ld a, e
-    ld [hli], a
-    ld a, TILE_PLAYER_00
-    ld [hli], a
+    ld a, d                 ; Put Y Position into A reg
+    ld [hli], a             ; OAM_0 Y = A reg
+    ld a, e                 ; Put Y Position into A reg
+    ld [hli], a             ; OAM_0 X = A reg
+    ld a, TILE_PLAYER_00    ; Put TILE_PLAYER_00 into A reg
+    ld [hli], a             ; OAM_0 Tile = A reg
     ld a, $00
     ld [hli], a
     
