@@ -315,8 +315,7 @@ TryMoveLeft:
     ; Do move left
     ld b, 0
     ld c, -1
-    ;jp MovePlayer
-    jp MovePlayerNoLoop
+    jp MovePlayer
 
 
 ; Try move right Player
@@ -363,8 +362,7 @@ TryMoveRight:
     ; Do move right
     ld b, 0
     ld c, 1
-    ;p MovePlayer
-    jp MovePlayerNoLoop
+    jp MovePlayer
 
 
 ; Try move up Player
@@ -411,8 +409,7 @@ TryMoveUp:
     ; Do move up
     ld b, -1
     ld c, 0
-    ;jp MovePlayer
-    jp MovePlayerNoLoop
+    jp MovePlayer
 
 
 
@@ -460,8 +457,7 @@ TryMoveDown:
     ; Do move down
     ld b, 1
     ld c, 0
-    ;jp MovePlayer
-    jp MovePlayerNoLoop
+    jp MovePlayer
 
 
 

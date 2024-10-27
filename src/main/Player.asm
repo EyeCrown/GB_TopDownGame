@@ -5,8 +5,8 @@ SECTION "Player Variables", WRAM0
     wPlayer_HP:: db
     wPlayer_ATK:: db
 
-    wPlayer_Y:: db
-    wPlayer_X:: db
+    wPlayer_Y:: db  ; Top-Left Corner Y
+    wPlayer_X:: db  ; Top-Left Corner X
 
 SECTION "Player", ROM0
 
@@ -23,7 +23,7 @@ SetPlayerPositionVariables::
     ld h, a                     ;   |
     ld a, b                     ; Write Y position into HL
     ld [hli], a                 ;   |   + inc HL to get wPlayer_X address in HL
-    ld a, c                     ; Write X position into HL 
+    ld a, c                     ; Write X position into HL
     ld [hl], a                  ;   |
     ret 
 
@@ -96,6 +96,7 @@ MovePlayer::
     ld [hli], a     ; hl++ -> hl = wPlayer_X 
     ld a, [hl]
     add a, c
+    ld [hl], a
     ret 
 
 ; Move player
@@ -171,7 +172,6 @@ MovePlayerNoLoop::
 
 
 DrawPlayerShadowOAM::
-    
     
     ld a, LOW(wPlayer_Y)
     ld l, a
