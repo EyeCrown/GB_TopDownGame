@@ -5,9 +5,9 @@
 
 ## Presentations
 
-This is a tiny game for GameBoy Classic DMG. It's a dungeon crawler where you play a knight fighting monsters to reach a tresor deep in the dungeon.
+This is a tiny game for Game Boy Classic DMG. It's a dungeon crawler where you play a knight fighting monsters to reach a treasure deep in the dungeon.
 
-This game is developed fully in **assembly code gbz80**
+This game is developed in **assembly codeGBZ80**
 
 ## Topics
 - Memory management
